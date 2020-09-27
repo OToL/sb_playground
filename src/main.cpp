@@ -1,38 +1,53 @@
-#include <sb_core/io/file_system.h>
+#include <sb_core/io/virtual_file_system.h>
 #include <sb_core/io/file.h>
+#include <sb_core/io/path.h>
 #include <sb_core/log.h>
+#include <sb_core/os.h>
 
-using namespace sb;
+#include <sb_std/xutility>
 
 int main()
 {
-    // FileSystem::InitParams fs_params;
+  using namespace sb;
 
-    // FS::LayerDesc phys_layers[1];
+  char local_data_dir[LOCAL_PATH_MAX_LEN];
+  getWorkingDirectory(local_data_dir);
 
-    // phys_layers[0].m_logical_path = "/data/";
-    // phys_layers[0].m_physical_path = "/Users/ebeau/Documents/dev/perso/sb_basic/data/";
-    // phys_layers[0].m_name = HashStr("data");
+  concatLocalPath(local_data_dir, "data");
 
-    // fs_params.m_layers = Span<FS::LayerDesc>{phys_layers};
+  VFS::InitDesc vfs_desc = {};
 
-    // FS::initialize(fs_params);
+  VFS::LayerInitDesc phys_layers[] = 
+  {
+    {
+      "data"_hs,
+      "/data/",
+      sbstd::data(local_data_dir)
+    }
+  };
+  vfs_desc.layers = phys_layers;
 
-    // FileHdl file_hdl;
+  b8 const vfs_init_res = VFS::initialize(vfs_desc);
+  sbAssert(vfs_init_res, "Failed to initialize VFS");
 
-    // {
-    //     file_hdl = FS::openFileRead("/data/test_file.txt", FileFormat::Text);
-    //     File test_file{file_hdl};
+  FileHdl file_hdl = VFS::openFileRead("/data/test_file.txt", FileFormat::Text);;
+  sbAssert(isValid(file_hdl));
+  VFS::closeFile(file_hdl);
 
-    //     ui8 file_data[255] = {};
-    //     test_file.read(file_data);
+  // {
+  //     file_hdl = FS::openFileRead("/data/test_file.txt", FileFormat::Text);
+  //     File test_file{file_hdl};
 
-    //     sbLogI((char const *)file_data);
-    // }
+  //     ui8 file_data[255] = {};
+  //     test_file.read(file_data);
+  
 
-    // // FS::closeFile(file_hdl);
+  //     sbLogI((char const *)file_data);
+  // }
 
-    // FS::terminate();
+  // // FS::closeFile(file_hdl);
 
-    return 0;
+   VFS::terminate();
+
+  return 0;
 }
