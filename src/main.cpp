@@ -1,8 +1,9 @@
 #include <sb_core/io/virtual_file_system.h>
-#include <sb_core/io/file.h>
+#include <sb_core/io/file_stream.h>
 #include <sb_core/io/path.h>
 #include <sb_core/log.h>
 #include <sb_core/os.h>
+#include <sb_core/enum.h>
 
 #include <sb_std/xutility>
 
@@ -30,22 +31,18 @@ int main()
   b8 const vfs_init_res = VFS::initialize(vfs_desc);
   sbAssert(vfs_init_res, "Failed to initialize VFS");
 
-  FileHdl file_hdl = VFS::openFileRead("/data/test_file.txt", FileFormat::Text);;
-  sbAssert(isValid(file_hdl));
-  VFS::closeFile(file_hdl);
+  sbAssert(VFS::fileExists("/data/test_file.txt"));
 
-  // {
-  //     file_hdl = FS::openFileRead("/data/test_file.txt", FileFormat::Text);
-  //     File test_file{file_hdl};
+  {
+    FileStream file(VFS::openFileRead("/data/test_file.txt", FileFormat::TEXT));
+    sbAssert(file.isValid());
 
-  //     ui8 file_data[255] = {};
-  //     test_file.read(file_data);
-  
+    u8 value[255];
+    file.read(value);
 
-  //     sbLogI((char const *)file_data);
-  // }
-
-  // // FS::closeFile(file_hdl);
+    // file.write({(u8 const *)"Manu", 5});
+    file.read(value);
+  }
 
    VFS::terminate();
 
