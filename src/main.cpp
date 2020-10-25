@@ -4,6 +4,7 @@
 #include <sb_core/log.h>
 #include <sb_core/os.h>
 #include <sb_core/enum.h>
+#include <sb_core/memory/alloc.h>
 
 #include <sb_std/xutility>
 
