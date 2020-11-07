@@ -18,7 +18,7 @@ int main()
   concatLocalPath(local_data_dir, "data");
 
   VFS::InitDesc vfs_desc = {};
-
+  
   VFS::LayerInitDesc phys_layers[] = 
   {
     {

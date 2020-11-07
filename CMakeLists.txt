@@ -6,4 +6,4 @@ add_executable(sb_playground
 target_link_libraries(sb_playground 
     PRIVATE
         sb::core
-        sb::cxx_properties_private)
+        sb::cxx_common_private)
