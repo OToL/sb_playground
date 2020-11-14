@@ -10,42 +10,35 @@
 
 int main()
 {
-  using namespace sb;
+    using namespace sb;
 
-  char local_data_dir[LOCAL_PATH_MAX_LEN];
-  getWorkingDirectory(local_data_dir);
+    char local_data_dir[LOCAL_PATH_MAX_LEN];
+    getWorkingDirectory(local_data_dir);
 
-  concatLocalPath(local_data_dir, "data");
+    concatLocalPath(local_data_dir, "data");
 
-  VFS::InitDesc vfs_desc = {};
-  
-  VFS::LayerInitDesc phys_layers[] = 
-  {
+    VFS::InitDesc vfs_desc = {};
+
+    VFS::LayerInitDesc phys_layers[] = {{"data"_hs, "/data/", sbstd::data(local_data_dir)}};
+    vfs_desc.layers = phys_layers;
+
+    b8 const vfs_init_res = VFS::initialize(vfs_desc);
+    sbAssert(vfs_init_res, "Failed to initialize VFS");
+
+    sbAssert(VFS::fileExists("/data/test_file.txt"));
+
     {
-      "data"_hs,
-      "/data/",
-      sbstd::data(local_data_dir)
+        FileStream file(VFS::openFileRead("/data/test_file.txt", FileFormat::TEXT));
+        sbAssert(file.isValid());
+
+        u8 value[255];
+        file.read(value);
+
+        // file.write({(u8 const *)"Manu", 5});
+        file.read(value);
     }
-  };
-  vfs_desc.layers = phys_layers;
 
-  b8 const vfs_init_res = VFS::initialize(vfs_desc);
-  sbAssert(vfs_init_res, "Failed to initialize VFS");
+    VFS::terminate();
 
-  sbAssert(VFS::fileExists("/data/test_file.txt"));
-
-  {
-    FileStream file(VFS::openFileRead("/data/test_file.txt", FileFormat::TEXT));
-    sbAssert(file.isValid());
-
-    u8 value[255];
-    file.read(value);
-
-    // file.write({(u8 const *)"Manu", 5});
-    file.read(value);
-  }
-
-   VFS::terminate();
-
-  return 0;
+    return 0;
 }
